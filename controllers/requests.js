@@ -30,7 +30,18 @@ async function index(req, res) {
   }
 }
 
+async function show(req, res) {
+  try {
+    const request = await Request.findById(req.params.requestId)
+      .populate(['author', 'comments.author'])
+    res.status(200).json(request)
+  } catch (error) {
+    res.status(500).json(error)
+  }
+}
+
 export {
   create,
   index,
+  show,
 }
