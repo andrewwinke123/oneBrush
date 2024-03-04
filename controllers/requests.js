@@ -40,8 +40,22 @@ async function show(req, res) {
   }
 }
 
+async function update(req, res) {
+  try {
+    const request = await Request.findByIdAndUpdate(
+      req.params.requestId,
+      req.body,
+      { new: true }
+    ).populate('author')
+    res.status(200).json(request)
+  } catch (error) {
+    res.status(500).json(error)
+  }
+}
+
 export {
   create,
   index,
-  show,
+	show,
+  update,
 }
