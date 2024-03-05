@@ -65,10 +65,32 @@ async function deleteRequest(req, res) {
   }
 }
 
+async function createComment(req, res) {
+  try {
+    req.body.author = req.user.profile
+    const request = await Request.findById(req.params.requestId)
+    request.comments.push(req.body)
+    await request.save()
+
+    // Find the newly created comment:
+    const newComment = request.comments[request.comments.length - 1]
+
+    // Temporarily append profile object to newComment.author:
+    const profile = await Profile.findById(req.user.profile)
+    newComment.author = profile
+
+		// Respond with the newComment:
+    res.status(201).json(newComment)
+  } catch (error) {
+    res.status(500).json(error)
+  }
+}
+
 export {
   create,
   index,
   show,
   update,
-  deleteRequest as delete
+  deleteRequest as delete,
+  createComment,
 }
