@@ -21,22 +21,29 @@ async function create(req, res) {
 
 async function index(req, res) {
   try {
-    const requests = await Request.find({})
+    const requests = await Request.find({ author: req.user.profile })
       .populate('author')
-      .sort({ createdAt: 'desc' })
-    res.status(200).json(requests)
+      .sort({ createdAt: 'desc' });
+    res.status(200).json(requests);
   } catch (error) {
-    res.status(500).json(error)
+    res.status(500).json(error);
   }
 }
 
 async function show(req, res) {
   try {
     const request = await Request.findById(req.params.requestId)
-      .populate(['author', 'comments.author'])
-    res.status(200).json(request)
+      .populate(['author', 'comments.author']);
+    if (!request) return res.status(404).send('Request not found');
+
+    // Check if the logged-in user is the author of the request
+    if (request.author._id.toString() !== req.user.profile.toString()) {
+      return res.status(403).send('Unauthorized access');
+    }
+
+    res.status(200).json(request);
   } catch (error) {
-    res.status(500).json(error)
+    res.status(500).json(error);
   }
 }
 
